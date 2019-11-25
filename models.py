@@ -46,13 +46,13 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
         c = conv_dim
         self.feature = nn.Sequential(
-            ConvLayer(3, c, 4, 2, norm="None"),     # (3, 128) -> (c, 64) 
+            ConvLayer(3, c, 4, 2, norm="None", padding="NotReflection"),     # (3, 128) -> (c, 64) 
             nn.LeakyReLU(0.2),
-            ConvLayer(c, c*2, 4, 2),                # (c, 64) -> (c*2, 32)
+            ConvLayer(c, c*2, 4, 2, padding="NotReflection"),                # (c, 64) -> (c*2, 32)
             nn.LeakyReLU(0.2),
-            ConvLayer(c*2, c*4, 4, 2),              # (c*2, 32) -> (c*4, 16)
+            ConvLayer(c*2, c*4, 4, 2, padding="NotReflection"),              # (c*2, 32) -> (c*4, 16)
             nn.LeakyReLU(0.2),
-            ConvLayer(c*4, c*8, 4, 2),              # (c*4, 8) -> (c*8, 8)
+            ConvLayer(c*4, c*8, 4, 2, padding="NotReflection"),              # (c*4, 8) -> (c*8, 8)
             nn.LeakyReLU(0.2),
         )
         if (patch): # Patch-GAN - Multiple discriminator output
@@ -74,11 +74,16 @@ class ConvLayer(nn.Module):
         if (padding == "reflection"):
             self.reflection_pad = nn.ReflectionPad2d(padding_size)
 
+        # Do not use weight bias when using norm layers!
+        bias = False
+        if (norm=="None"):
+            bias = True
+
         # Convolution Layer
-        if (padding == "None"):
-            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding_size, bias=False)
+        if (padding == "NotReflection"):
+            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding=padding_size, bias=bias)
         else:
-            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, bias=False)
+            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, bias=bias)
 
         # Normalization Layer
         self.norm_type = norm
