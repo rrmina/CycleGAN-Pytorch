@@ -12,6 +12,7 @@ import models
 import utils
 import time
 
+import losses
 from losses import real_loss, fake_loss, cycle_loss
 from dataset import prepare_dataset
 import generate
@@ -84,13 +85,7 @@ def train():
     fixed_Y = fixed_Y.to(device)
 
     # Loss History for the Whole Training Process
-    loss_hist = {
-        "Gxy": [],
-        "Gyx": [],
-        "Dxy": [],
-        "Dyx": [],
-        "cycle": []
-    }
+    loss_hist = losses.createLogger(["Gxy", "Gyx", "Dxy", "Dyx", "cycle"])
 
     # Number of batches
     iter_per_epoch = min(len(x_trainiter), len(y_trainiter))
@@ -101,13 +96,7 @@ def train():
         start_time = time.time()
         
         # Loss Logger for the Current Batch
-        curr_loss_hist = {
-            "Gxy": [],
-            "Gyx": [],
-            "Dxy": [],
-            "Dyx": [],
-            "cycle": []
-        }
+        curr_loss_hist = losses.createLogger(["Gxy", "Gyx", "Dxy", "Dyx", "cycle"])
 
         # Reset Iterators every epoch, otherwise, we'll have unequal batch sizes 
         # or worse, reach the end of iterator and get a Stop Iteration Error
@@ -180,23 +169,15 @@ def train():
             G_optim.step()
 
             # Record Losses
-            curr_loss_hist["Gxy"].append(Gxy_loss.item())
-            curr_loss_hist["Gyx"].append(Gyx_loss.item())
-            curr_loss_hist["Dxy"].append(Dxy_loss.item())
-            curr_loss_hist["Dyx"].append(Dxy_loss.item())
-            curr_loss_hist["cycle"].append(G_cycle_loss.item())
+            curr_loss_hist = losses.updateEpochLogger(curr_loss_hist, [Gxy_loss, Gyx_loss, Dxy_loss, Dxy_loss, G_cycle_loss])
 
         # Print Losses
         print("Dxy: {} Dyx: {} G: {} Cycle: {}".format(Dxy_loss.item(), Dyx_loss.item(), G_loss.item(), G_cycle_loss.item()))
         print("Time Elapsed: {}".format(time.time() - start_time))
         
         # Record per epoch losses
-        loss_hist["Gxy"].append(np.mean(curr_loss_hist["Gxy"]))
-        loss_hist["Gyx"].append(np.mean(curr_loss_hist["Gyx"]))
-        loss_hist["Dxy"].append(np.mean(curr_loss_hist["Dxy"]))
-        loss_hist["Dyx"].append(np.mean(curr_loss_hist["Dyx"]))
-        loss_hist["cycle"].append(np.mean(curr_loss_hist["cycle"]))
-
+        loss_hist = losses.updateGlobalLogger(loss_hist, curr_loss_hist)
+        
         # Generate Fake Images
         Gxy.eval()
         Gyx.eval()
