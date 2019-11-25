@@ -76,9 +76,9 @@ class ConvLayer(nn.Module):
 
         # Convolution Layer
         if (padding == "None"):
-            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding_size)
+            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding_size, bias=False)
         else:
-            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride)
+            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, bias=False)
 
         # Normalization Layer
         self.norm_type = norm
@@ -89,7 +89,7 @@ class ConvLayer(nn.Module):
 
     def forward(self, x):
         # Reflection Padding
-        if (self.paddin == "reflection"):
+        if (self.padding == "reflection"):
             x = self.reflection_pad(x)
 
         # Conv Layer
