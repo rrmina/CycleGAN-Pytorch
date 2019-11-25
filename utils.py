@@ -42,6 +42,19 @@ def show(image, title=""):
     plt.imshow(image)
     plt.show()
 
+# Plot Loss Curves
+def plot_loss(loss_hist):
+    fig = plt.figure(figsize=(10,10))
+    plt.plot(loss_hist["Gxy"], label="Gxy")
+    plt.plot(loss_hist["Gyx"], label="Gyx")
+    plt.plot(loss_hist["Dxy"], label="Dxy")
+    plt.plot(loss_hist["Dyx"], label="Dyx")
+    plt.plot(loss_hist["cycle"], label="cycle")
+    plt.title("Training Losses")
+    plt.legend()
+    plt.show()
+
+# Save Image
 def saveimg(image, savepath):
     plt.imsave(savepath, image)
 
