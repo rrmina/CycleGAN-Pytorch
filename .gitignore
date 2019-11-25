@@ -1,0 +1,5 @@
+__pycache__
+.ipynb_checkpoints/
+*.docx
+*.png
+summer2winter_yosemite/

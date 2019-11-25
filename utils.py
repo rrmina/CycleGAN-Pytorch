@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+import torchvision
 from torchvision import datasets, transforms
 
 import cv2
@@ -20,61 +21,34 @@ def prepare_loader(path, name, transform, batch_size=1, shuffle=True):
 
     return train_loader, test_loader
 
-def ttoi(tensor):
-    img = tensor.cpu().numpy()
-    return img
+# Merge Tensors into Adjacent numpy arrays!
+def concat_images(tensor):
+    image_tensor = torchvision.utils.make_grid(tensor)          # Merge Tensor [B, C, H, W] -> [C, H, W*B]
+    image_tensor = scale_back(image_tensor)                     # [-1, 1] -> [0, 1]
+    concat_tensor = image_tensor.clone().detach().cpu().numpy() # Torch Tensor to Numpy Array
+    images = concat_tensor.transpose(1,2,0)                     # [C, H, W] -> [H, W, C]
+    return images
 
-def show(img):
-    plt.figure(figsize=(30, 30))
-    plt.imshow(img)
+# Expects a torch tensor. Please do not pass a numpy tensor.
+def show_tensor(tensor, title=""):
+    image = tensor.clone().detach().cpu().numpy()
+    image = image.transpose(1,2,0)
+    show(image, title)
+
+# Expects a numpy array
+def show(image, title=""):
+    fig = plt.figure(figsize=(10,10))
+    plt.title(title)
+    plt.imshow(image)
     plt.show()
 
-def saveimg(img, image_path):
-    img = img.clip(0,1)
+def saveimg(image, savepath):
+    plt.imsave(savepath, image)
 
-    # Transpose from [C, H, W] -> [H, W, C]
-    img = img.transpose(1,2,0)
-    #cv2.imwrite(image_path, img)
-    plt.imsave(image_path, img)
+# Output of generator is Tanh! so we need to scale real images accordingly
+def scale(tensor, mini=-1, maxi=1):
+    return tensor * (maxi-mini) + mini
 
-def merge_images(original, generated):
-    # Check sizes
-    bs, c, h, w = original.shape
-    num_rows = 2
-    num_cols = bs
-
-    # Placeholder Image
-    placeholder = np.empty([3, num_rows*h, num_cols*w])
-    
-    # Reshape
-    for i in range(num_rows):
-        for j in range(num_cols):
-            if (i == 0):
-                placeholder[:, i*h: (i+1)*h, j*w: (j+1)*w] = original[j]
-            else:
-                placeholder[:, i*h: (i+1)*h, j*w: (j+1)*w] = generated[j]
-
-    return placeholder.transpose(1, 2, 0)
-
-def savesamples(original, generated):
-    image = merge_images(original, generated)
-
-def concatenate_images(original, generated, H, W):
-    # Compute necessary dimension
-    batch_size = original.shape[0]
-    pixel_row = batch_size * W
-    pixel_col = 2 * H
-
-    # Placeholder Image
-    placeholder = np.empty([3, pixel_col, pixel_row])
-
-    # Reshape
-    for i in range(2):
-        for j in range(batch_size):
-            if (i == 0):
-                placeholder[ :, i*H : (i+1)*H, j*W : (j+1)*W ] = original[j]
-            else:
-                placeholder[ :, i*H : (i+1)*H, j*W : (j+1)*W ] = generated[j]
-
-    return placeholder
-            
+# Outputs need to be scaled back from [mini, maxi] to [0, 1]
+def scale_back(tensor, mini=-1, maxi=1):
+    return (tensor-mini)/(maxi-mini)
