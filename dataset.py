@@ -30,3 +30,8 @@ def prepare_dataset(DATASET_PATH):
     os.rename(DATASET_PATH + folder_names[1] + "/B", DATASET_PATH + folder_names[1] + "/images") # testB/images
     os.rename(DATASET_PATH + folder_names[2] + "/C", DATASET_PATH + folder_names[2] + "/images") # trainA/images
     os.rename(DATASET_PATH + folder_names[3] + "/D", DATASET_PATH + folder_names[3] + "/images") # trainB/images
+
+def prepare_folder(folder_names=[]):
+    for name in folder_names:
+        if (os.path.exists(name) == False):
+            os.mkdir(name)

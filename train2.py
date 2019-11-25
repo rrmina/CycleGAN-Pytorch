@@ -47,6 +47,11 @@ def train():
     device = ("cuda" if torch.cuda.is_available() else "cpu")
     print("Device: {}".format(device))
 
+    # Prepare dataset to make it usable with ImageFolder. Please only do this once
+    # Uncomment this when you encounter "RuntimeError: Found 0 files in subfolders of:"
+    # prepare_dataset(DATASET_PATH)
+    # prepare_folders([IMAGE_SAVE_FOLDER, MODEL_SAVE_FOLDER])
+
     # Tranform, Dataset, DataLoaders
     transform = transforms.Compose([
         transforms.Resize(TRAIN_IMAGE_SIZE),
@@ -177,7 +182,7 @@ def train():
         
         # Record per epoch losses
         loss_hist = losses.updateGlobalLogger(loss_hist, curr_loss_hist)
-        
+
         # Generate Fake Images
         Gxy.eval()
         Gyx.eval()
