@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class Generator(nn.Module):
-    """Feedforward Transformation Network without Tanh
+    """Feedforward Transformation Network with Tanh
     reference: https://arxiv.org/abs/1603.08155 
     exact architecture: https://cs.stanford.edu/people/jcjohns/papers/fast-style/fast-style-supp.pdf
                         https://arxiv.org/pdf/1703.10593.pdf Appendix 7
