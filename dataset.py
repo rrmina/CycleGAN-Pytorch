@@ -5,6 +5,10 @@
 import os
 import shutil
 
+def prepare_dataset_and_folder(DATASET_PATH, folder_names=[]):
+    prepare_dataset(DATASET_PATH)
+    prepare_folder(folder_names)
+
 def prepare_dataset(DATASET_PATH):
     
     folder_names = os.listdir(DATASET_PATH) # testA, testB, trainA, trainB

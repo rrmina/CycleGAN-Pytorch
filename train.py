@@ -16,7 +16,7 @@ import time
 
 import losses
 from losses import real_loss, fake_loss, cycle_loss
-from dataset import prepare_dataset
+from dataset import prepare_dataset_and_folder
 import generate
 
 # Global Settings
@@ -52,8 +52,7 @@ def train():
 
     # Prepare dataset to make it usable with ImageFolder. Please only do this once
     # Uncomment this when you encounter "RuntimeError: Found 0 files in subfolders of:"
-    # prepare_dataset(DATASET_PATH)
-    # prepare_folders([IMAGE_SAVE_FOLDER, MODEL_SAVE_FOLDER])
+    # prepare_dataset_and_folder(DATASET_PATH, [IMAGE_SAVE_FOLDER, MODEL_SAVE_FOLDER])
 
     # Tranform, Dataset, DataLoaders
     transform = transforms.Compose([
