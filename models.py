@@ -42,6 +42,30 @@ class Generator(nn.Module):
         x = self.DeconvBlock(x)
         return x
 
+class Generator256(Generator):
+    def __init__(self, conv_dim):
+        super(Generator256, self).__init__(conv_dim)
+        c = conv_dim
+
+        # 9 Residual Layers for 256 image
+        self.ResidualBlock = nn.Sequential(
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3)
+        )
+
+    def forward(self, x):
+        x = self.ConvBlock(x)
+        x = self.ResidualBlock(x)
+        x = self.ConvBlock(x)
+        return x
+
 class Discriminator(nn.Module):
     def __init__(self, conv_dim, patch=True):
         super(Discriminator, self).__init__()
