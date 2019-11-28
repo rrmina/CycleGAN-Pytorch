@@ -63,7 +63,7 @@ class Generator256(Generator):
     def forward(self, x):
         x = self.ConvBlock(x)
         x = self.ResidualBlock(x)
-        x = self.ConvBlock(x)
+        x = self.DeconvBlock(x)
         return x
 
 class Discriminator(nn.Module):
