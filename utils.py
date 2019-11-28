@@ -6,7 +6,7 @@ from torchvision import datasets, transforms
 import cv2
 import numpy as np
 
-def prepare_loader(path, name, transform, batch_size=1, shuffle=True):
+def prepare_loader(path, name, transform, batch_size=1, shuffle=True, num_workers=1):
     # Path
     train_folder = path + "train" + name
     test_folder = path + "test" + name
@@ -16,8 +16,8 @@ def prepare_loader(path, name, transform, batch_size=1, shuffle=True):
     test_dataset = datasets.ImageFolder(test_folder, transform=transform)    
 
     # DataLoader
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=shuffle)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
 
     return train_loader, test_loader
 

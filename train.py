@@ -183,7 +183,7 @@ def train():
             yxy_cycle_loss = cycle_loss(yxy, y_real)    # Y-X-Y L1 Cycle Reconstruction Loss
             xyx = Gyx(Gxy_out)                          # Reconstruct X
             xyx_cycle_loss = cycle_loss(xyx, x_real)    # X-Y-X L1 Cycle Reconstruction Loss
-            G_cycle_loss = CYCLE_WEIGHT * yxy_cycle_loss + xyx_cycle_loss
+            G_cycle_loss = CYCLE_WEIGHT * (yxy_cycle_loss + xyx_cycle_loss)
             
             # Generator Total Loss
             G_loss = Gxy_loss + Gyx_loss + G_cycle_loss
