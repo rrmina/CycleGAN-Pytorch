@@ -1,9 +1,13 @@
 # CycleGAN
 
 ## manga2anime (Pokemon)
-![Pikachu Manga](images/manga_manga2anime.png)
-![Pikachu Anime](images/anime_manga2anime.png)
+<p align = 'center'>
+<img src = 'images/manga_manga2anime.png' height = '350px'>
+<img src = 'images/anime_manga2anime.png' height = '350px'>
+</p>
 
 ## horse2zebra
-![Horse](images/horse_horse2zebra.jpg)
-![Zebra](images/zebra_horse2zebra.png)
+<p align = 'center'>
+<img src = 'images/horse_horse2zebra.jpg' height = '250px'>
+<img src = 'images/zebra_horse2zebra.png' height = '250px'>
+</p>
