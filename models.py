@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.nn import init
 
 class Generator(nn.Module):
     """Feedforward Transformation Network with Tanh
@@ -143,3 +144,43 @@ class DeconvLayer(nn.Module):
         else:
             out = self.norm_layer(x)
         return out
+
+class Generator256(Generator):
+    def __init__(self, conv_dim):
+        super(Generator256, self).__init__(conv_dim)
+        c = conv_dim
+
+        # 9 Residual Layers for 256 image
+        self.ResidualBlock = nn.Sequential(
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3),
+            ResidualLayer(c*4, 3)
+        )
+
+    def forward(self, x):
+        x = self.ConvBlock(x)
+        x = self.ResidualBlock(x)
+        x = self.DeconvBlock(x)
+        return x
+
+# Initialize networks
+# Ref: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/models/networks.py#L67
+def init_weights(m, init_type="normal", init_gain=0.02):
+    classname = m.__class__.__name__
+    if hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
+
+        # Weights
+        if init_type == 'normal':
+            init.normal_(m.weight.data, 0.0, init_gain)
+        elif init_type == 'xavier':
+            init.xavier_normal_(m.weight.data, gain=init_gain)
+            
+        # Bias
+        if hasattr(m, 'bias') and m.bias is not None:
+            init.constant_(m.bias.data, 0.0)
