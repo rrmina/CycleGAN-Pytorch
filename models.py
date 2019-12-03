@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.nn import init
 
 class Generator(nn.Module):
     """Feedforward Transformation Network with Tanh
@@ -42,42 +41,18 @@ class Generator(nn.Module):
         x = self.DeconvBlock(x)
         return x
 
-class Generator256(Generator):
-    def __init__(self, conv_dim):
-        super(Generator256, self).__init__(conv_dim)
-        c = conv_dim
-
-        # 9 Residual Layers for 256 image
-        self.ResidualBlock = nn.Sequential(
-            ResidualLayer(c*4, 3),
-            ResidualLayer(c*4, 3),
-            ResidualLayer(c*4, 3),
-            ResidualLayer(c*4, 3),
-            ResidualLayer(c*4, 3),
-            ResidualLayer(c*4, 3),
-            ResidualLayer(c*4, 3),
-            ResidualLayer(c*4, 3),
-            ResidualLayer(c*4, 3)
-        )
-
-    def forward(self, x):
-        x = self.ConvBlock(x)
-        x = self.ResidualBlock(x)
-        x = self.DeconvBlock(x)
-        return x
-
 class Discriminator(nn.Module):
     def __init__(self, conv_dim, patch=True):
         super(Discriminator, self).__init__()
         c = conv_dim
         self.feature = nn.Sequential(
-            ConvLayer(3, c, 4, 2, norm="None", padding="NotReflection"),     # (3, 128) -> (c, 64) 
+            ConvLayer(3, c, 4, 2, norm="None"),     # (3, 128) -> (c, 64) 
             nn.LeakyReLU(0.2),
-            ConvLayer(c, c*2, 4, 2, padding="NotReflection"),                # (c, 64) -> (c*2, 32)
+            ConvLayer(c, c*2, 4, 2),                # (c, 64) -> (c*2, 32)
             nn.LeakyReLU(0.2),
-            ConvLayer(c*2, c*4, 4, 2, padding="NotReflection"),              # (c*2, 32) -> (c*4, 16)
+            ConvLayer(c*2, c*4, 4, 2),              # (c*2, 32) -> (c*4, 16)
             nn.LeakyReLU(0.2),
-            ConvLayer(c*4, c*8, 4, 2, padding="NotReflection"),              # (c*4, 8) -> (c*8, 8)
+            ConvLayer(c*4, c*8, 4, 2),              # (c*4, 8) -> (c*8, 8)
             nn.LeakyReLU(0.2),
         )
         if (patch): # Patch-GAN - Multiple discriminator output
@@ -99,16 +74,11 @@ class ConvLayer(nn.Module):
         if (padding == "reflection"):
             self.reflection_pad = nn.ReflectionPad2d(padding_size)
 
-        # Do not use weight bias when using norm layers!
-        bias = False
-        if (norm=="None"):
-            bias = True
-
         # Convolution Layer
-        if (padding == "NotReflection"):
-            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding=padding_size, bias=bias)
+        if (padding == "None"):
+            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding_size, bias=False)
         else:
-            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, bias=bias)
+            self.conv_layer = nn.Conv2d(in_channels, out_channels, kernel_size, stride, bias=False)
 
         # Normalization Layer
         self.norm_type = norm
@@ -173,19 +143,3 @@ class DeconvLayer(nn.Module):
         else:
             out = self.norm_layer(x)
         return out
-
-# Initialize networks
-# Ref: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/models/networks.py#L67
-def init_weights(m, init_type="normal", init_gain=0.02):
-    classname = m.__class__.__name__
-    if hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
-
-        # Weights
-        if init_type == 'normal':
-            init.normal_(m.weight.data, 0.0, init_gain)
-        elif init_type == 'xavier':
-            init.xavier_normal_(m.weight.data, gain=init_gain)
-            
-        # Bias
-        if hasattr(m, 'bias') and m.bias is not None:
-            init.constant_(m.bias.data, 0.0)
